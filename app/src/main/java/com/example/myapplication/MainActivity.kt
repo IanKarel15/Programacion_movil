@@ -20,15 +20,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,24 +47,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(innerPadding)
-                }
-            }
+@Composable
+fun AppNavigation(padding: PaddingValues) {
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            MainScreen(padding = padding, navController = navController)
+        }
+        composable("login") {
+            LoginScreen( navController = navController)
         }
     }
 }
 
 @Composable
-fun MainScreen(padding: PaddingValues) {
+fun MainScreen(padding: PaddingValues, navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize().padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,7 +101,7 @@ fun MainScreen(padding: PaddingValues) {
                     Spacer(modifier = Modifier.height(30.dp))
                     Text(
                         text = "Hello",
-                        color = (Color(0xFF4A47A3)),
+                        color = (Color.Black),
                         fontSize = 42.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -97,12 +109,14 @@ fun MainScreen(padding: PaddingValues) {
                     Text(
                         text = "Welcome to my first test of an application in Android Studio.",
                         fontSize = 16.sp,
-                        color = (Color(0xFF4A47A3)),
+                        color = (Color.Black),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = {},
+                        onClick = {
+                            navController.navigate("login")
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp),
@@ -172,11 +186,95 @@ fun MainScreen(padding: PaddingValues) {
     }
 }
 
+@Composable
+fun LoginScreen(navController: NavController) {
+    var userName by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
+    var userPassword by remember { mutableStateOf("") }
+    Box(
+        modifier = Modifier.fillMaxSize().background(Color(0xFF4A47A3))
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .width(320.dp)
+                    .height(700.dp)
+                    .padding(22.dp)
+            ){
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.img1),
+                        contentDescription = "Logo",
+                        modifier = Modifier.size(210.dp)
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    Text(
+                        text = "Login",
+                        color = (Color.Black),
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    OutlinedTextField(
+                        value = userName,
+                        shape = RoundedCornerShape(12.dp),
+                        onValueChange = { newText -> userName = newText },
+                        label = { Text("Name") }
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    OutlinedTextField(
+                        value = userEmail,
+                        shape = RoundedCornerShape(12.dp),
+                        onValueChange = { newText -> userEmail = newText },
+                        label = { Text("Email") }
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    OutlinedTextField(
+                        value = userPassword,
+                        shape = RoundedCornerShape(12.dp),
+                        onValueChange = { newText -> userPassword = newText },
+                        label = { Text("Password") }
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+                        text = "Forgot your password",
+                        fontSize = 12.sp,
+                        color = (Color.Gray),
+                        textAlign = TextAlign.Left
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.align(Alignment.End),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A47A3))
+                    ) {
+                        Text("Sign up",color = Color.White, fontSize = 20.sp)
+                    }
+
+                }
+            }
+        }
+    }
+
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
     MyApplicationTheme {
-        MainScreen(padding = PaddingValues(0.dp))
+        AppNavigation(padding = PaddingValues(0.dp))
     }
 }
 
